@@ -1,0 +1,462 @@
+---
+title: "STAT 341: Assignment 1"
+subtitle: "Nichole Huang"
+output:
+  pdf_document:
+    keep_tex: yes
+    number_sections: no
+    latex_engine: xelatex
+  html_document:
+    toc: yes
+  word_document: default
+urlcolor: blue
+header-includes:
+- \usepackage{multirow}
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r, include = FALSE}
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=70),tidy=TRUE)
+```
+
+
+## QUESTION 2: Basic R Calculations [10 points]
+
+**(a)** 
+```{r}
+3^4
+
+```
+**(b)** 
+```{r}
+log(100, base=7)
+
+```
+
+**(c)** 
+```{r}
+sum(1 / (1:100)^2)
+
+```
+**(d)** 
+```{r}
+100 %% 7
+
+```
+**(e)**
+\newline 
+```{r}
+A <- matrix(data = c(4,1,4,6,2,6,6,5,5,4,5,1),
+            ncol = 4, byrow = FALSE)
+
+max_row_sums <- max(apply(A, 1, sum))
+
+mean_col_sums <- mean(apply(A, 2, sum))
+
+cat("Maximum of the row sums:", max_row_sums, "\n")
+
+cat("Mean of the column sums:", mean_col_sums, "\n")
+``` 
+
+$\;$
+
+**(f)**
+```{r}
+# Define my own FUN function to count entries divisible by 5
+count_divisible_by_5 <- function(row) {
+  sum(row %% 5 == 0)  # Count how many elements are divisible by 5
+}
+
+divisible_entries <- apply(A, 1, count_divisible_by_5)
+
+cat("Number of entries in each row divisible by 5:", divisible_entries, "\n")
+```
+
+$\;$
+
+**(g)**
+```{r}
+nearest_neighbour <- function(v, x) {
+  # calculate the absolute differences between each element in v and x
+  differences <- sapply(v, function(element) abs(element - x))
+  
+  # Find the minimum difference
+  min_diff <- min(differences)
+  
+  # Find the position of elements that are equal to the minimum difference
+  nearest_pos <- which(differences == min_diff)
+  
+  return(nearest_pos)
+}
+    
+    nearest_neighbour(v = c(4,1,4,6,2,6,6,5,5,4,5,1), x = 3)
+```
+
+\newpage
+
+## QUESTION 3: Investigating the Weighted Average [13 points]
+
+**(a)**
+
+$$
+\begin{aligned} 
+a(\mathcal{P^*})&=a(y_1+b,...,y_N+b), \:b\in\mathbb{R}\\
+&=\frac{\sum_{u\in\mathcal{P}}w_u(y_u+b)}{\sum_{u\in\mathcal{P}}w_u}\\
+&=\frac{\sum_{u\in\mathcal{P}}w_uy_u}{\sum_{u\in\mathcal{P}}w_u}+\frac{\sum_{u\in\mathcal{P}}w_ub}{\sum_{u\in\mathcal{P}}w_u}\\
+&=\frac{\sum_{u\in\mathcal{P}}w_uy_u}{\sum_{u\in\mathcal{P}}w_u}+\frac{b\sum_{u\in\mathcal{P}}w_u}{\sum_{u\in\mathcal{P}}w_u}\\
+&=a(\mathcal{P})+b
+\end{aligned}
+$$
+So, it's location equivariant.
+
+$\;$
+
+**(b)**
+
+$$
+\begin{aligned} 
+a(\mathcal{P^*})
+&=a(my_1,...,my_N),\:m>0\\
+&=\frac{\sum_{u\in\mathcal{P}}w_u(my_u)}{\sum_{u\in\mathcal{P}}w_u}\\
+&=\frac{m\sum_{u\in\mathcal{P}}w_uy_u}{\sum_{u\in\mathcal{P}}w_u}\\
+&=m\times a(\mathcal{P})
+\end{aligned}
+$$
+So, it's scale equivariant.
+
+$\;$
+
+**(c)**
+$$
+a(\mathcal{P^*})=a(\mathcal{P^k})=a(x_1,x_2,...,x_N),\:where\:x_i=ky_i,\:k\in\mathbb{N}\\
+$$
+
+$$
+\begin{aligned} 
+a(\mathcal{P^*})
+&=\frac{\sum_{i\in\mathcal{P^*}}w_ix_i}{\sum_{i\in\mathcal{P^*}}w_i}\\
+&=\frac{\sum_{u\in\mathcal{P}}w_u(ky_u)}{\sum_{u\in\mathcal{P}}kw_u}\\
+&=\frac{k\sum_{u\in\mathcal{P}}w_uy_u}{k\sum_{u\in\mathcal{P}}w_u}\\
+&=a(\mathcal{P})
+\end{aligned}
+$$
+So, it's relication invariant.
+
+$\;$
+
+**(d)**
+$$
+\begin{aligned} 
+SS(y,w;a(\mathcal{P}))
+&=N[a(\mathcal{P^*})-a(\mathcal{P})]\\
+&=N[\frac{{\sum_{u\in\mathcal{P}}w_uy_u}+wy}{{\sum_{u\in\mathcal{P}}w_u}+w} 
+    -\frac{{\sum_{u\in\mathcal{P}}w_uy_u}}{{\sum_{u\in\mathcal{P}}w_u}}]\\
+&=N[\frac{({\sum_{u\in\mathcal{P}}w_uy_u}+wy){\sum_{u\in\mathcal{P}}w_u}
+        +({\sum_{u\in\mathcal{P}}w_u}+w){\sum_{u\in\mathcal{P}}w_uy_u}}
+       {({\sum_{u\in\mathcal{P}}w_u}+w){\sum_{u\in\mathcal{P}}w_u}}]\\
+&=\frac{Nw(y{\sum_{u\in\mathcal{P}}w_u}-{\sum_{u\in\mathcal{P}}w_uy_u})}
+       {({\sum_{u\in\mathcal{P}}w_u}+w){\sum_{u\in\mathcal{P}}w_u}}
+\end{aligned}
+$$
+
+$\;$
+
+**(e)**
+    
+```{r}
+set.seed(341)
+N <- 1000
+y_vals <- rexp(N)
+w_vals <- runif(N)
+
+# Calculate weighted mean of the original population
+a_P <- weighted.mean(y_vals, w_vals)
+
+# Sensitivity surface function SS(y, w; a(P))
+sensitivity_surface <- function(y, w, y_vals, w_vals) {
+  # Calculate weighted mean of the new population
+  a_P_new <- weighted.mean(c(y_vals, y), c(w_vals, w))
+  return (N * (a_P_new - a_P))
+}
+
+# Generate a grid of y and w values
+y_grid <- seq(0, 10, length.out = 100)
+w_grid <- seq(0, 3, length.out = 100)
+yw_matrix <- outer(y_grid, w_grid, 
+                   Vectorize(function(y, w) sensitivity_surface(y, w, y_vals, w_vals)))
+
+# Plot the contour plot
+contour(y_grid, w_grid, yw_matrix, xlab = "y", ylab = "w", 
+        main = "Contour Plot of Sensitivity Surface SS(y, w; a(P))",
+        col = hcl.colors(10, "Red-Blue"))
+```
+
+**(f)** Generally, as the injected y and w increase, the sensitivity of weighted average increases unboundedly. However, notice that when w = 0, sensitivity is 0; and when y is 1, no matter how w increases, the sensitivity remains 0.
+
+
+\newpage 
+
+## QUESTION 4: Weighted $k$-Nearest Neighbour Prediction [10 points]
+
+$\;$
+
+```{r}
+dataq4 <- read.csv("q4data.csv")
+
+# x: a vector of explanatory variate values for each of the units in P.
+# y: a vector of response variate values for each of the units in P.
+# k: the number of neighbors to consider when performing the weighted average prediction.
+wknn <- function(x, y, k){
+  N <- length(x)
+  predictions <- numeric(N) # Initialize a vector of size N to store the predictions
+  
+  for (u in 1:N){
+    
+    # Calculate the distances between x_u and all the other x in the neighborhood
+    distances <- abs(x[u]-x[-u])
+
+    # Find the k nearest neighbors
+    nearest_neighbors <- match(distances, sort(distances)) <= k
+
+    # Calculate the weights
+    weights <- exp(-distances[nearest_neighbors])
+    
+    # Calculate the weighted averages
+    predictions[u] <- weighted.mean(y[-u][nearest_neighbors], weights)
+  }
+  return(predictions)
+}
+
+print(wknn(dataq4$x, dataq4$y, k=3))
+```
+
+\newpage
+
+
+## QUESTION 5: Billboard 200™ [30 points] 
+
+**(a)**
+  
+```{r, fig.width = 9}    
+data_q5 <- read.csv("Billboard_200_Albums_2015-2024.csv")
+par(mfrow = c(1, 3))
+
+# Calculate the bin width using the Freedman-Diaconis rule
+bin_width <- 2 * IQR(data_q5$Units) / (length(data_q5$Units)^(1/3))
+
+# Create the sequence of breaks covering the full range of Units
+breaks_seq <- seq(min(data_q5$Units), max(data_q5$Units) + bin_width, by = bin_width)
+
+# Plot the histogram
+hist(data_q5$Units, breaks = breaks_seq, 
+     main = "Histogram of Units", 
+     xlab = "Units Sold", 
+     col = "lightblue", 
+     border = "black")
+
+# Plot the boxplot
+boxplot(data_q5$Units, main = "Boxplot of Units", ylab = "Units Sold")
+
+# Plot the quantile
+qqnorm(data_q5$Units)
+qqline(data_q5$Units, col = "red")
+```
+
+$\;$
+
+**(b)**
+```{r}
+top_artists <- sort(table(data_q5$Artist), decreasing = TRUE)
+head(top_artists, 3)
+```
+
+$\;$
+
+**(c)**
+```{r}
+# Count the number of weeks each album was at number one
+album_count <- table(data_q5$Album)
+
+# Sort the albums by the number of weeks at number one, in descending order
+sorted_album_count <- sort(album_count, decreasing = TRUE)
+
+# Get the album with the most weeks at number one
+top_album <- names(sorted_album_count)[1]   # Album name
+top_album_artist <- data_q5$Artist[which(data_q5$Album == top_album)][1]  # Artist for the album
+top_album_weeks <- sorted_album_count[1]    # Number of weeks at number one
+
+cat(top_album, "by", top_album_artist,
+    "with", top_album_weeks, "weeks at number one.")
+
+```
+
+$\;$
+
+**(d)**
+```{r}
+# Find consecutive weeks for each album
+album_runs <- rle(as.character(data_q5$Album))
+
+# Find the most consecutive weeks
+longest_run_index <- which.max(album_runs$lengths)
+longest_run_album <- album_runs$values[longest_run_index]
+longest_run_length <- album_runs$lengths[longest_run_index]
+
+# Tie
+longest_run_index_2 <- which.max(album_runs$lengths) + 1
+longest_run_album_2 <- album_runs$values[longest_run_index_2]
+
+# Find the artists for that albums
+longest_run_artist <- data_q5$Artist[which(data_q5$Album == longest_run_album)][1]
+longest_run_artist_2 <- data_q5$Artist[which(data_q5$Album == longest_run_album_2)][1]
+
+cat(longest_run_album, 
+    "by", longest_run_artist, 
+    "with", longest_run_length, "consecutive weeks.")
+
+cat(longest_run_album_2, 
+    "by", longest_run_artist_2, 
+    "with", longest_run_length, "consecutive weeks.")
+```
+
+$\;$
+
+**(e)**
+```{r}
+# Calculate the total units sold by each album
+total_units_per_album <- aggregate(Units ~ Album + Artist, data = data_q5, sum)
+
+# Sort the albums by total units sold
+sorted_total_units <- total_units_per_album[order(-total_units_per_album$Units), ]
+
+# Find the album with the most units sold
+top_units_album <- sorted_total_units[1, ]
+
+cat(top_units_album$Album, 
+    "by", top_units_album$Artist, 
+    "with", top_units_album$Units, "total units sold.")
+```
+
+$\;$
+
+**(f)**
+```{r}
+# Calculate the total units sold by each album for each year
+total_units_per_album_year <- aggregate(Units ~ Year + Album + Artist, data = data_q5, sum)
+
+# Find the album with the most units sold for each year
+library(dplyr)
+top_album_each_year <- total_units_per_album_year %>%
+  group_by(Year) %>%
+  top_n(1, Units)
+
+top_album_each_year
+```
+
+$\;$
+
+**(g)** 
+```{r, fig.height = 6} 
+x_g <- 1:507
+
+# Create a scatterplot of `Units` over time
+plot(x_g, y = data_q5$Units, xlim = c(0, 507),
+     main = "Units Over Time", xlab = "Weeks", ylab = "Units Sold", 
+     pch = 19, col = "lightblue", cex = 1)
+points(x_g, y = data_q5$Units, pch = 1, cex = 1, col = "lightblue3")
+
+# k-NN predictions with k = 2 and k = 20
+k2_predictions <- wknn(x_g, data_q5$Units, k = 2)
+k20_predictions <- wknn(x_g, data_q5$Units, k = 20)
+
+# Smooth the lines
+k2_smoothed <- smooth.spline(x_g, y = k2_predictions, spar=0.2)
+k20_smoothed <- smooth.spline(x_g, y = k20_predictions, spar=0.2)
+
+# Plot the lines
+lines(k2_smoothed, col = "blue", lwd = 1.9)
+lines(k20_smoothed, col = "violetred1", lwd = 1.9)
+
+legend("topright", legend = c("2-NN", "20-NN"), col = c("blue", "violetred1"), lwd = 2)
+```
+
+$\;$
+
+**(h)**
+```{r}
+# Calculate the absolute error for 2-NN and 20-NN predictions
+true_values <- data_q5$Units
+pred_2nn <- wknn(x_g, data_q5$Units, k = 2)
+pred_20nn <- wknn(x_g, data_q5$Units, k = 20)
+
+# Step 2: Calculate MAPE for 2-NN
+mape_2nn <- mean(abs(true_values - pred_2nn))
+
+# Step 3: Calculate MAPE for 20-NN
+mape_20nn <- mean(abs(true_values - pred_20nn))
+
+# Output the results
+cat("MAPE for 2-NN is:", mape_2nn, "\n")
+cat("MAPE for 20-NN is:", mape_20nn, "\n")
+
+# Compare which k is better (smaller MAPE is better)
+if (mape_2nn < mape_20nn) {
+  cat("k = 2 provides better predictions.\n")
+} else {
+  cat("k = 20 provides better predictions.\n")
+}
+
+```
+
+$\;$
+
+**(i)**
+```{r}   
+# Define the transformation function
+power_transform <- function(y, alpha) {
+  if (sum(y <= 0) > 0) stop # y must be positive
+  if (alpha == 0) {
+    return(log(y))
+  } else if (alpha > 0){
+    return(y^alpha)
+  } else {
+    return(-y^alpha)
+  }
+}
+
+# Apply transformations for alpha = -0.5, 0, 0.5
+alpha_values <- c(-0.5, 0, 0.5)
+mape_transformed <- c()
+
+
+for (alpha in alpha_values) {
+  
+  # Apply the transformation
+  y_transformed <- power_transform(data_q5$Units, alpha)
+  
+  # Apply weighted k-NN (using the best k from part (h))
+  best_k <- if (mape_2nn < mape_20nn) 2 else 20
+  pred_transformed <- wknn(x_g, y_transformed, k = best_k)
+  
+  # Inverse transformation
+  if (alpha == 0) {
+    pred_original <- exp(pred_transformed)
+  } else {
+    pred_original <- pred_transformed^(1 / alpha)
+  }
+  
+  # Calculate MAPE
+  mape_transformed[alpha + 1] <- mean(abs(data_q5$Units - pred_original))
+}
+
+# Output the best transformation based on MAPE
+best_alpha <- alpha_values[which.min(mape_transformed)]
+cat("Best transformation is for alpha =", best_alpha, "with MAPE =", min(mape_transformed), "\n")
+```
+Applying weighted k-NN to symmetric data appears to make a significant difference compared to skewed data. The reduction in MAPE indicates that the transformation helped stabilize the variance and improved the model's ability to predict. This suggests that using symmetric data allows the weighted k-NN algorithm to function more effectively, possibly because it can reduce the influence of outliers.
+    
